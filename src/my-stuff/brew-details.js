@@ -2,12 +2,7 @@
 import React, {Component} from "react";
 import BiabWater from "./biab-water";
 import GravityAdjustments from "./gravity-adjustments";
-
-type Brew = {
-    name: string,
-    brewDate: Date,
-    og: number,
- };
+import {Brew} from "./brew";
 
 export default class BrewDetails extends Component {
     props: {
@@ -24,7 +19,7 @@ export default class BrewDetails extends Component {
 
                 <br/>
                 <br/>
-                <BiabWater />
+                <BiabWater brew={brew} />
 
                 <br/>
                 <br/>
