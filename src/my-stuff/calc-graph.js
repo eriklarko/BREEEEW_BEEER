@@ -1,7 +1,8 @@
 // @flow
+// Uses https://github.com/crubier/react-graph-vis
 
 import React, { Component } from 'react';
-import {Sigma, RandomizeNodePositions, RelativeSize} from 'react-sigma';
+import GraphVis from 'react-graph-vis';
 
 export default class CalcGraph extends Component {
     
@@ -9,30 +10,35 @@ export default class CalcGraph extends Component {
         const root : BrewValue  = this.props.root;
         const graph = this._getGraphData(root);
 
-        console.log(graph);
-        return <Sigma graph={{nodes:[{id:"n1", label:"Alice"}, {id:"n2", label:"Rabbit"}], edges:[{id:"e1",source:"n1",target:"n2",label:"SEES"}]}} settings={{drawEdges:true}}>
-                <RelativeSize initialSize={15}/>
-                    <RandomizeNodePositions/>
-                </Sigma>
-        return <Sigma graph={graph}>
-           <RelativeSize initialSize={15} />
-           <RandomizeNodePositions />
-        </Sigma>
+        const options = {
+            layout: {
+                hierarchical: true
+            },
+            edges: {
+                color: "#000000"
+            }
+        };
+        const events = {
+            select: function(event) {
+                console.log('Selected node', event);
+            }
+        }
+         
+        return <GraphVis graph={graph} options={options} events={events} />
     }
 
     _getGraphData(node) {
         const nodes = {}
         const edges = [];
 
-        nodes[node.id] = this._asSigmaNode(node);
+        nodes[node.id] = this._asGraphVisNode(node);
 
         for (const input of node.inputs) {
-            nodes[input.id] = nodes[input.id] || this._asSigmaNode(input);
+            nodes[input.id] = nodes[input.id] || this._asGraphVisNode(input);
 
             edges.push({
-                id: input.id + " -> " + node.id,
-                source: input.id,
-                target: node.id,
+                from: input.id,
+                to: node.id,
             });
         }
         return {
@@ -41,10 +47,11 @@ export default class CalcGraph extends Component {
         };
     }
 
-    _asSigmaNode(brewValue: BrewValue) {
+    _asGraphVisNode(brewValue: BrewValue) {
         return {
             id: brewValue.id,
             label: brewValue.id + ' hej',
+            color: '#09cdda',
         };
     }
 }
