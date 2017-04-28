@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "flow-bin": "^0.33.0",
-    "react-scripts": "0.9.0"
+    "react-scripts": "0.9.5",
+    "flow-bin": "^0.45.0"
   },
   "dependencies": {
     "react": "^15.3.2",

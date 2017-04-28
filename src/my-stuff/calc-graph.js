@@ -2,6 +2,7 @@
 // Uses https://github.com/crubier/react-graph-vis
 
 import React, { Component } from 'react';
+import { BrewValue } from './brew-value';
 import GraphVis from 'react-graph-vis';
 
 export default class CalcGraph extends Component {

@@ -3,11 +3,14 @@
 import uuid from "uuid";
 
 export class BrewValue {
-    inputs: Array<BrewValue> = [];
+    name: string;
     value: ?number = null;
+    inputs: Array<BrewValue> = [];
     id = uuid.v4();
 
-    constructor(...inputs: Array<BrewValue>) {
+    constructor(name: string, value: number, ...inputs: Array<BrewValue>) {
+        this.name = name;
+        this.value = value;
         this.inputs = inputs;
     }
 

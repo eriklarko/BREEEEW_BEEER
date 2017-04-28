@@ -1,7 +1,6 @@
 // @flow
 
-//import {it, expect} from "jest";
-
+import {it, expect} from "jest";
 import {BrewValue, DependencyQueue} from "./brew-value";
 
 expect.extend({
@@ -26,9 +25,9 @@ expect.extend({
 });
 
 it('adds inputs to dependency queue', () => {
-    const dep1 = new BrewValue(); dep1.id = "dep1";
-    const dep2 = new BrewValue(); dep2.id = "dep2";
-    const sut = new BrewValue(dep1, dep2);
+    const dep1 = new BrewValue('', 0); dep1.id = "dep1";
+    const dep2 = new BrewValue('', 0); dep2.id = "dep2";
+    const sut = new BrewValue('', 0, dep1, dep2);
     const queue = new DependencyQueue();
 
     sut.invalidate(queue);
