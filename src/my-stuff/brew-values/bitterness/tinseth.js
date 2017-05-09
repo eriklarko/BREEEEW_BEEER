@@ -1,50 +1,11 @@
-class Liter{
-    value() {
-        return 10;
-    }
-}
-class SpecificGravity{
-    value() {
-        return 10;
-    }
-}
-class Minutes {
-    value() {
-        return 10;
-    }
-}
-class Grams{
-    value() {
-        return 10;
-    }
-}
-class Factor {
-    // 0.xyz
-    value() {
-        return 0.1;
-    }
-}
-class Hop {
-    getAlphaAcids() {
-        return new Factor();
-    }
-}
-class HopAddition {
-    getHop() {
-        return new Hop();
-    }
+// @flow
 
-    getAmount() {
-        return new Grams();
-    }
+import { HopAddition } from '../hops';
+import { Liters, SpecificGravity, IBU } from '../../units';
 
-    getTimeInBoil() {
-        return new Minutes();
-    }
-}
-
-export function tinseth(hopAdditions: Array<HopAddition>, currentBoilVolume: Liter, currentBoilGravity: SpecificGravity) {
-    return hopAdditions.reduce((acc, v) => acc + getRawIBUsForAddition(v, currentBoilVolume, currentBoilGravity), 0) 
+export function tinseth(hopAdditions: Array<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): IBU {
+    const ibus = hopAdditions.reduce((acc, v) => acc + getRawIBUsForAddition(v, currentBoilVolume, currentBoilGravity), 0) 
+    return new IBU(ibus);
 }
 
 function getRawIBUsForAddition(addition, boilVolume, boilGravity) {

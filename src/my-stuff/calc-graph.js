@@ -43,7 +43,9 @@ export default class CalcGraph extends Component {
             });
         }
         return {
-            nodes: Object.values(nodes),
+            nodes: Object.keys(nodes).map(function(key) {
+                    return nodes[key];
+            }),
             edges: edges
         };
     }
