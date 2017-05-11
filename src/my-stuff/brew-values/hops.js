@@ -1,6 +1,7 @@
 // @flow
 
 import { Percent, Grams, Minutes } from '../units';
+import { Observable } from '../observable';
 
 export class Hop {
     _name: string;
@@ -16,16 +17,21 @@ export class Hop {
     }
 }
 
-export class HopAddition {
+export class HopAddition extends Observable<HopAddition> {
 
     _hop: Hop;
     _amount: Grams;
     _timeInBoil: Minutes;
 
     constructor(hop: Hop, amount: Grams, timeInBoil: Minutes) {
+        super();
+
         this._hop = hop;
         this._amount = amount;
         this._timeInBoil = timeInBoil;
+
+        this._amount.onChange( () => this.fireChange(this, undefined, this));
+        this._timeInBoil.onChange( () => this.fireChange(this, undefined, this));
     }
 
     getHop() {

@@ -91,3 +91,33 @@ export class ReactiveBrewValue<T> extends BrewValue<T> {
     }
 }
 
+
+export class ObservableArray<T> extends Observable<Array<Observable<T>>> {
+
+    _value: Array<Observable<T>>;
+
+    constructor(initialValue: Array<Observable<T>>) {
+        super();
+        this._value = initialValue ? initialValue.slice() :  [];
+
+        //this._onElementChanged = this._onElementChanged.bind(this);
+    }
+
+    push(value: Observable<T>) {
+        this._value.push(value);
+        value.onChange(this._onElementChanged);
+        this.fireChange(this, undefined, []);
+    }
+
+    toArray() {
+        return this._value.slice();
+    }
+
+    _onElementChanged(element: Observable<T>, oldValue: ?T, newValue: T) {
+        this.fireChange(this, undefined, []);
+    }
+
+    /*[Symbol.iterator]() {
+        return this._value.values();
+    }*/
+}

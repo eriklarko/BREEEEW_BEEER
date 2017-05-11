@@ -2,15 +2,15 @@
 
 //import { it, expect } from "jest";
 import { Kilos, Liters, SpecificGravity, Percent, Grams, Minutes } from './units';
-import { BrewValue, ReactiveBrewValue } from "./observable";
+import { ObservableArray, ReactiveBrewValue } from "./observable";
 import { biabWater } from './brew-values/biab-water'
 import { tinseth } from './brew-values/bitterness/tinseth'
 import { HopAddition, Hop } from './brew-values/hops';
 
 it('changes value when a dependency is updated', () => {
 
-    const desiredPreBoilVolume = new BrewValue(new Liters(1));
-    const maltWeight = new BrewValue(new Kilos(1));
+    const desiredPreBoilVolume = new Liters(1);
+    const maltWeight = new Kilos(1);
     const mashVolume = biabWater(maltWeight, desiredPreBoilVolume);
     mashVolume.makeAuto();
     expect(mashVolume.get().value()).toBe(1.9);
@@ -19,19 +19,19 @@ it('changes value when a dependency is updated', () => {
     expect(mashVolume.get().value()).toBe(2.8);
 });
 
-it.only('works with tinseth', () => {
-    const has = [new BrewValue(new HopAddition(
+it('works with tinseth', () => {
+    const has = new ObservableArray([new HopAddition(
             new Hop("apa", new Percent(3)),
             new Grams(5),
             new Minutes(7)
 
-        )), new BrewValue(new HopAddition(
+        ), new HopAddition(
             new Hop("apa", new Percent(11)),
             new Grams(13),
             new Minutes(17)
-    ))];
-    const cbv = new BrewValue(new Liters(19));
-    const cbg = new BrewValue(new SpecificGravity(23));
+    )]);
+    const cbv = new Liters(19);
+    const cbg = new SpecificGravity(23);
 
     const ibu = tinseth(has, cbv, cbg);
     ibu.makeAuto();
@@ -42,4 +42,12 @@ it.only('works with tinseth', () => {
 
     cbg.set(new SpecificGravity(2));
     expect(ibu.get().value()).toBe(0.01844248088107077);
+
+
+    has.push(new HopAddition(
+        new Hop("apa", new Percent(11)),
+        new Grams(13),
+        new Minutes(17)
+    ));
+    expect(ibu.get().value()).toBe(0.03597466772615196);
 });
