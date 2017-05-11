@@ -1,10 +1,19 @@
 // @flow
+import { BrewValue, ReactiveBrewValue } from '../../observable';
 
 import { HopAddition } from '../hops';
 import { Liters, SpecificGravity, IBU } from '../../units';
 
-export function tinseth(hopAdditions: Array<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): IBU {
-    const ibus = hopAdditions.reduce((acc, v) => acc + getRawIBUsForAddition(v, currentBoilVolume, currentBoilGravity), 0) 
+export function tinseth(hopAdditions: Array<BrewValue<HopAddition>>, currentBoilVolume: BrewValue<Liters>, currentBoilGravity: BrewValue<SpecificGravity>): ReactiveBrewValue<IBU> {
+    return new ReactiveBrewValue(new IBU(0), () => {
+        const has = hopAdditions.map(ha => ha.get());
+        return tinsethInternal(has, currentBoilVolume.get(), currentBoilGravity.get());
+
+    }, ...hopAdditions, currentBoilVolume, currentBoilGravity);
+}
+
+function tinsethInternal(hopAdditions: Array<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): IBU {
+    const ibus = hopAdditions.reduce((acc, ha) => acc + getRawIBUsForAddition(ha, currentBoilVolume, currentBoilGravity), 0) 
     return new IBU(ibus);
 }
 

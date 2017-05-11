@@ -37,7 +37,7 @@ export class Factor extends Unit {
 // xy.za
 export class Percent extends Unit {
     asFactor() {
-        return new Factor(super._value / 100);
+        return new Factor(this.value() / 100);
     }
 }
 

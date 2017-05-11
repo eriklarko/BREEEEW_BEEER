@@ -1,33 +1,45 @@
 // @flow
 
 //import { it, expect } from "jest";
-import { Kilos, Liters } from './units';
+import { Kilos, Liters, SpecificGravity, Percent, Grams, Minutes } from './units';
 import { BrewValue, ReactiveBrewValue } from "./observable";
+import { biabWater } from './brew-values/biab-water'
+import { tinseth } from './brew-values/bitterness/tinseth'
+import { HopAddition, Hop } from './brew-values/hops';
 
 it('changes value when a dependency is updated', () => {
 
     const desiredPreBoilVolume = new BrewValue(new Liters(1));
     const maltWeight = new BrewValue(new Kilos(1));
-    const mashVolume = apa(maltWeight, desiredPreBoilVolume);
+    const mashVolume = biabWater(maltWeight, desiredPreBoilVolume);
     mashVolume.makeAuto();
-    console.log('first assert');
     expect(mashVolume.get().value()).toBe(1.9);
 
-    console.log('setting mw');
     maltWeight.set(new Kilos(2));
-    console.log('second assert');
     expect(mashVolume.get().value()).toBe(2.8);
 });
 
-function BiabWater(maltWeight: Kilos, desiredPreBoilVolume: Liters): Liters {
-    return new Liters(desiredPreBoilVolume.value() + 0.9 * maltWeight.value());
-}
+it.only('works with tinseth', () => {
+    const has = [new BrewValue(new HopAddition(
+            new Hop("apa", new Percent(3)),
+            new Grams(5),
+            new Minutes(7)
 
-function apa(maltWeight: BrewValue<Kilos>, desiredPreBoilVolume: BrewValue<Liters>): ReactiveBrewValue<Liters> {
-    return new ReactiveBrewValue(new Liters(0), () => {
-        const a = maltWeight.get();
-        const b = desiredPreBoilVolume.get();
+        )), new BrewValue(new HopAddition(
+            new Hop("apa", new Percent(11)),
+            new Grams(13),
+            new Minutes(17)
+    ))];
+    const cbv = new BrewValue(new Liters(19));
+    const cbg = new BrewValue(new SpecificGravity(23));
 
-        return BiabWater(a, b);
-    }, maltWeight, desiredPreBoilVolume);
-}
+    const ibu = tinseth(has, cbv, cbg);
+    ibu.makeAuto();
+    expect(ibu.get().value()).toBe(2.1047766144504525e-85);
+
+    cbv.set(new Liters(2));
+    expect(ibu.get().value()).toBe(1.99953778372793e-84);
+
+    cbg.set(new SpecificGravity(2));
+    expect(ibu.get().value()).toBe(0.01844248088107077);
+});
