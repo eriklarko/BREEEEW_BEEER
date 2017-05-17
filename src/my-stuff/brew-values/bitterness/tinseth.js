@@ -1,11 +1,11 @@
 // @flow
-import { ObservableArray, ReactiveBrewValue } from '../../observable';
+import { ObservableArray, ReactiveObservable } from '../../observable';
 
 import { HopAddition } from '../hops';
 import { Liters, SpecificGravity, IBU } from '../../units';
 
-export function tinseth(hopAdditions: ObservableArray<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): ReactiveBrewValue<IBU> {
-    return new ReactiveBrewValue(new IBU(0), () => {
+export function tinseth(hopAdditions: ObservableArray<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): ReactiveObservable<IBU> {
+    return new ReactiveObservable(new IBU(0), () => {
         return tinsethInternal(hopAdditions.toArray(), currentBoilVolume, currentBoilGravity);
 
     }, hopAdditions, currentBoilVolume, currentBoilGravity);

@@ -1,7 +1,7 @@
 // @flow
 
 import { Kilos, Liters } from '../units';
-import { ReactiveBrewValue } from "../observable";
+import { ReactiveObservable } from "../observable";
 
 function biabWaterInternal(maltWeight: Kilos, desiredPreBoilVolume: Liters): Liters {
     return new Liters(desiredPreBoilVolume.value() + 0.9 * maltWeight.value());
@@ -10,11 +10,11 @@ function biabWaterInternal(maltWeight: Kilos, desiredPreBoilVolume: Liters): Lit
 export function biabWater(
     maltWeight: Kilos,
     desiredPreBoilVolume: Liters
-): ReactiveBrewValue<Liters> {
+): ReactiveObservable<Liters> {
 
     const initialValue = new Liters(0);
     
-    return new ReactiveBrewValue(initialValue, () => {
+    return new ReactiveObservable(initialValue, () => {
 
         return biabWaterInternal(maltWeight, desiredPreBoilVolume);
     }, maltWeight, desiredPreBoilVolume);

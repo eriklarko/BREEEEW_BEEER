@@ -1,14 +1,15 @@
 // @flow
+
 // Uses https://github.com/crubier/react-graph-vis
 
 import React, { Component } from 'react';
-import { BrewValue } from './brew-value';
+import { ReactiveObservable } from './observable';
 import GraphVis from 'react-graph-vis';
 
 export default class CalcGraph extends Component {
     
     render() {
-        const root : BrewValue  = this.props.root;
+        const root : ReactiveObservable  = this.props.root;
         const graph = this._getGraphData(root);
 
         const options = {
@@ -50,7 +51,7 @@ export default class CalcGraph extends Component {
         };
     }
 
-    _asGraphVisNode(brewValue: BrewValue) {
+    _asGraphVisNode(brewValue: ReactiveObservable) {
         return {
             id: brewValue.id,
             label: brewValue.id + ' hej',

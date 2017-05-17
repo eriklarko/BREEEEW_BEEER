@@ -1,8 +1,7 @@
 // @flow
 
-//import { it, expect } from "jest";
 import { Kilos, Liters, SpecificGravity, Percent, Grams, Minutes } from './units';
-import { ObservableArray, ReactiveBrewValue } from "./observable";
+import { ObservableArray } from "./observable";
 import { biabWater } from './brew-values/biab-water'
 import { tinseth } from './brew-values/bitterness/tinseth'
 import { HopAddition, Hop } from './brew-values/hops';

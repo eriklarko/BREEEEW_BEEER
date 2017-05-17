@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 
 import BrewDetails from "./my-stuff/brew-details";
 import {Brew} from "./my-stuff/brew";
-import { BrewValue } from "./my-stuff/brew-value";
 import CalcGraph from "./my-stuff/calc-graph";
 import { Liters, SpecificGravity } from "./my-stuff/units";
 import { Recipe } from "./my-stuff/recipe";
