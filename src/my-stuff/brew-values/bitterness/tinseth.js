@@ -5,7 +5,7 @@ import { HopAddition } from '../hops';
 import { Liters, SpecificGravity, IBU } from '../../units';
 
 export function tinseth(hopAdditions: ObservableArray<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): ReactiveObservable<IBU> {
-    return new ReactiveObservable(new IBU(0), () => {
+    return new ReactiveObservable(null, () => {
         return tinsethInternal(hopAdditions.toArray(), currentBoilVolume, currentBoilGravity);
 
     }, hopAdditions, currentBoilVolume, currentBoilGravity);

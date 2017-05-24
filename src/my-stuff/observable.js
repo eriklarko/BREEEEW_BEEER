@@ -1,4 +1,5 @@
 // @flow
+import uuid from 'uuid';
 
 type ObservableListener<T> = (Observable<T>, ?T, T) => void;
 export class Observable<T> {
@@ -24,7 +25,7 @@ export class ObservableArray<T> extends Observable<Array<Observable<T>>> {
 
     _value: Array<Observable<T>>;
 
-    constructor(initialValue: Array<Observable<T>>) {
+    constructor(...initialValue: Array<Observable<T>>) {
         super();
         this._value = initialValue ? initialValue.slice() :  [];
 
@@ -50,14 +51,16 @@ export class ObservableArray<T> extends Observable<Array<Observable<T>>> {
     }*/
 }
 
-export class ReactiveObservable<T> extends Observable<T> {
+export class ReactiveObservable<T: {value: ()=>number}> extends Observable<T> {
+    id: string;
     isAutomatic: boolean;
     isDirty: boolean;
     _value: T;
     _fn: ?() => T;
 
-    constructor(initialValue: T, fn: ?() => T, ...deps: Array<Observable<any>>) {
+    constructor(initialValue: ?T, fn: () => T, ...deps: Array<Observable<any>>) {
         super();
+        this.id = uuid.v4();
         this._fn = fn;
  
         if (initialValue) {
@@ -74,6 +77,7 @@ export class ReactiveObservable<T> extends Observable<T> {
     }
 
     get(): T {
+        this._trace('getting');
         if (this.isAutomatic && this.isDirty) {
             if (!this._fn) {
                 throw new Error('Trying to get the value of an automatic IOCV without a function');
@@ -82,7 +86,13 @@ export class ReactiveObservable<T> extends Observable<T> {
             this._set(this._fn())
             this.isDirty = false;
         } 
+        this._trace('got', this._value);
         return this._value;
+    }
+
+    value(): number {
+        this._trace('reading value');
+        return this.get().value();
     }
 
     set(value: T) {
@@ -91,7 +101,7 @@ export class ReactiveObservable<T> extends Observable<T> {
     }
 
     _set(value: T) {
-        //console.log('setting value to ', value);
+        this._trace('setting value to ', value);
 
         const oldValue = this._value;
         this._value = value;
@@ -99,7 +109,7 @@ export class ReactiveObservable<T> extends Observable<T> {
     }
 
     makeAuto() {
-        //console.log('making auto');
+        this._trace('making auto');
 
         if (!this._fn) {
             throw new Error('Trying to create automatic brew value withiout giving a way to calculate it');
@@ -109,9 +119,14 @@ export class ReactiveObservable<T> extends Observable<T> {
     }
 
     invalidate() {
-        //console.log('invalidating');
+        this._trace('invalidating');
 
         this.isDirty = true;
+        this.fireChange(this, this._value, this._value);
+    }
+
+    _trace(...msg) {
+        console.log(this.id, ...msg);
     }
 }
 

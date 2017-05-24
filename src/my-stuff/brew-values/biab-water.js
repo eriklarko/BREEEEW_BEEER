@@ -12,7 +12,7 @@ export function biabWater(
     desiredPreBoilVolume: Liters
 ): ReactiveObservable<Liters> {
 
-    const initialValue = new Liters(0);
+    const initialValue = null;
     
     return new ReactiveObservable(initialValue, () => {
 
