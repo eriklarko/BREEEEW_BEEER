@@ -17,7 +17,11 @@ class Unit<T: Unit<*>> extends Observable<number> {
 
     set(value: T) {
         const oldVal = this._value;
-        this._value = value.value();
+        if (typeof value === 'number') {
+            this._value = value;
+        } else {
+            this._value = value._value;
+        }
 
         this.fireChange(this, oldVal, this._value);
     }

@@ -4,6 +4,8 @@ import { Kilos, Liters } from '../units';
 import { ReactiveObservable } from "../observable";
 
 function biabWaterInternal(maltWeight: Kilos, desiredPreBoilVolume: Liters): Liters {
+    console.log('de', desiredPreBoilVolume.value());
+    console.log('mw', maltWeight.value());
     return new Liters(desiredPreBoilVolume.value() + 0.9 * maltWeight.value());
 }
 
