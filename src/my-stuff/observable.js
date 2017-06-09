@@ -1,7 +1,18 @@
 // @flow
-import uuid from 'uuid';
 
-type ObservableListener<T> = (Observable<T>, ?T, T) => void;
+import uuid from "uuid";
+
+export type Observablee<T> = Manual<T> | Automatic<T>;
+export class Manual<T> extends Observable<T> {
+}
+export class Automatic<T> ReactiveObservable<T> {
+    constructor(fn, ...deps) {
+        super(fn, ..deps);
+    }
+}
+
+
+type ObservableListener<T> = (Observable<T>) => void;
 export class Observable<T> {
 
     listeners: Array<ObservableListener<T>>;
@@ -14,9 +25,9 @@ export class Observable<T> {
         this.listeners.push(listener);
     }
 
-    fireChange(obs: Observable<T>, oldValue: ?T, newValue: T) {
+    fireChange(obs: Observable<T>) {
         this.listeners.forEach(l => {
-            l(obs, oldValue, newValue)
+            l(obs);
         });
     }
 }
@@ -35,15 +46,15 @@ export class ObservableArray<T> extends Observable<Array<Observable<T>>> {
     push(value: Observable<T>) {
         this._value.push(value);
         value.onChange(this._onElementChanged);
-        this.fireChange(this, undefined, []);
+        this.fireChange(this);
     }
 
     toArray() {
         return this._value.slice();
     }
 
-    _onElementChanged(element: Observable<T>, oldValue: ?T, newValue: T) {
-        this.fireChange(this, undefined, []);
+    _onElementChanged(_element: Observable<T>, _oldValue: ?T, _newValue: T) {
+        this.fireChange(this);
     }
 
     /*[Symbol.iterator]() {
@@ -51,14 +62,17 @@ export class ObservableArray<T> extends Observable<Array<Observable<T>>> {
     }*/
 }
 
-export class ReactiveObservable<T: {value: ()=>number}> extends Observable<T> {
+interface HasValue {
+    +value: () => number,
+}
+export class ReactiveObservable<T: HasValue> extends Observable<T> {
     id: string;
     isAutomatic: boolean;
     isDirty: boolean;
     _value: T;
     _fn: ?() => T;
 
-    constructor(initialValue: ?T, fn: () => T, ...deps: Array<Observable<any>>) {
+    constructor(initialValue: ?T, fn: () => T, ...deps: Array<Observable<*>>) {
         super();
         this.id = uuid.v4();
         this._fn = fn;
@@ -77,21 +91,21 @@ export class ReactiveObservable<T: {value: ()=>number}> extends Observable<T> {
     }
 
     get(): T {
-        this._trace('getting');
+        this._trace("getting");
         if (this.isAutomatic && this.isDirty) {
             if (!this._fn) {
-                throw new Error('Trying to get the value of an automatic IOCV without a function');
+                throw new Error("Trying to get the value of an automatic IOCV without a function");
             }
 
-            this._set(this._fn())
+            this._set(this._fn());
             this.isDirty = false;
         } 
-        this._trace('got', this._value);
+        this._trace("got", this._value);
         return this._value;
     }
 
     value(): number {
-        this._trace('reading value');
+        this._trace("reading value", this.get());
         return this.get().value();
     }
 
@@ -101,32 +115,33 @@ export class ReactiveObservable<T: {value: ()=>number}> extends Observable<T> {
     }
 
     _set(value: T) {
-        this._trace('setting value to ', value);
+        this._trace("setting value to ", value);
 
         const oldValue = this._value;
         this._value = value;
-        this.fireChange(this, oldValue, this._value);
+        this.fireChange(this);
     }
 
     makeAuto() {
-        this._trace('making auto');
+        this._trace("making auto");
 
         if (!this._fn) {
-            throw new Error('Trying to create automatic brew value withiout giving a way to calculate it');
+            throw new Error("Trying to create automatic brew value withiout giving a way to calculate it");
         }
         this.isAutomatic = true;
         this.invalidate();
     }
 
     invalidate() {
-        this._trace('invalidating');
+        this._trace("invalidating");
 
         this.isDirty = true;
-        this.fireChange(this, this._value, this._value);
+        this.fireChange(this);
     }
 
     _trace(...msg) {
         console.log(this.id, ...msg);
     }
 }
+
 

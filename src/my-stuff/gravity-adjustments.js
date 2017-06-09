@@ -3,8 +3,8 @@
 import React, { Component } from 'react';
 
 export default class GravityAdjustments extends Component {
-    og: any = undefined;
-    temp: any = undefined;
+    og: ?{value: number} = undefined;
+    temp: ?{value: number} = undefined;
     state: {
         adjustedOg: number,
     };
@@ -17,6 +17,9 @@ export default class GravityAdjustments extends Component {
     }
 
     _onOgChange = (e: Object) => {
+        if (!this.temp) {
+            throw new Error();
+        }
         const og = e.target.value * 1;
         const temp = this.temp.value * 1;
 
@@ -24,6 +27,9 @@ export default class GravityAdjustments extends Component {
     }
 
     _onTempChange = (e: Object) => {
+        if (!this.og) {
+            throw new Error();
+        }
         const og = this.og.value * 1;
         const temp = e.target.value * 1;
 
@@ -160,6 +166,9 @@ export default class GravityAdjustments extends Component {
     }
 
     _desiredOgChanged = (e: Object) => {
+        if (!this.og) {
+            throw new Error();
+        }
         const desiredOg = e.target.value * 1;
         if (desiredOg > this.og.value) {
             // We need to add more sugar!
@@ -178,7 +187,6 @@ export default class GravityAdjustments extends Component {
             OG: <input defaultValue={brew.og} onChange={this._onOgChange} ref={(r) => this.og = r}/>
             at <input defaultValue="22" onChange={this._onTempChange} ref={(r) => this.temp = r}/>deg C -> <div>{this.state.adjustedOg} GP</div>
 
-            The desired OG was: <input defaultValue="1.050" onChange={this._desiredOgChanged} />, so add 1L of water / add 1L of 1.080 GP wort
-        </div>
+            The desired OG was: <input defaultValue="1.050" onChange={this._desiredOgChanged} />, so add 1L of water / add 1L of 1.080 GP wort </div>
     }
 }

@@ -7,6 +7,7 @@ import { Yeast } from "../brew-values/yeast";
 import { Minutes, Grams, Percent, Liters, SpecificGravity, IBU, Kilos } from '../units';
 import { tinseth } from "../brew-values/bitterness/tinseth";
 import { biabWater } from "../brew-values/biab-water";
+import { adjustForBoilOff } from "../brew-values/water";
 
 export const citra = new Hop("citra", new Percent(12.5));
 export const paleAle = new Malt('Pale Ale');
@@ -14,6 +15,11 @@ export const us05 = new Yeast('US-05');
 
 const tenMin = new Minutes(10);
 
+export type Ingredients = {
+    hops: ObservableArray<HopAddition>,
+    maltBill: ObservableArray<MaltAddition>,
+    yeast: Yeast,
+}
 export const LeSec = {
     hops: new ObservableArray(new HopAddition(citra, tenMin, new Grams(1))),
     maltBill: new ObservableArray(new MaltAddition(paleAle, new Kilos(1))),
@@ -29,14 +35,16 @@ export class Recipe {
     desiredBoilVolume: Liters;
     boilVolume: Liters;
     boilGravity: SpecificGravity;
+    boilTime: Minutes;
 
-    constructor(ingredientsList: any) {
+    constructor(ingredientsList: Ingredients) {
         this.ingredients = ingredientsList;
 
         this.desiredBoilVolume = new Liters(4);
         this.boilGravity = new SpecificGravity(1);
-        console.log('WEIGHT', this.maltWeight());
-        this.boilVolume = biabWater(this.maltWeight(), this.desiredBoilVolume);
+        this.boilTime = new Minutes(60);
+        
+        this.boilVolume = adjustForBoilOff(biabWater(this.maltWeight(), this.desiredBoilVolume), this.boilTime);
         this.bitterness = tinseth(this.ingredients.hops, this.boilVolume, this.boilGravity);
     }
 

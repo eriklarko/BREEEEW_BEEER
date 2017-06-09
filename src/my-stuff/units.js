@@ -2,7 +2,7 @@
 
 import { Observable } from "./observable";
 
-class Unit<T: Unit<*>> extends Observable<number> {
+class Unit<T> extends Observable<number> {
 
     _value: number;
 
@@ -16,14 +16,7 @@ class Unit<T: Unit<*>> extends Observable<number> {
     }
 
     set(value: T) {
-        const oldVal = this._value;
-        if (typeof value === 'number') {
-            this._value = value;
-        } else {
-            this._value = value._value;
-        }
-
-        this.fireChange(this, oldVal, this._value);
+        this.fireChange(this);
     }
 }
 
@@ -31,6 +24,11 @@ export class Liters extends Unit<Liters> {
 }
 
 export class Minutes extends Unit<Minutes> {
+    asHours(): Hours {
+        return new Hours(this.value() / 60);
+    }
+}
+export class Hours extends Unit<Hours> {
 }
 
 export class Kilos extends Unit<Kilos> {

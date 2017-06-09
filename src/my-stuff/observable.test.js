@@ -76,9 +76,7 @@ it('works with chained reactive values', () => {
     const ibu = tinseth(has, mashVolume, cbg);
 
     const firstValue = ibu.value();
-    console.log('SETTING THE MALTWEIGHT');
     maltWeight.set(new Kilos(2));
-    console.log('GETTING THE IBU');
     expect(ibu.value()).not.toBe(firstValue);
 });
 
