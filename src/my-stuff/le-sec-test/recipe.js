@@ -21,7 +21,7 @@ export type Ingredients = {
     yeast: Yeast,
 }
 export const LeSec = {
-    hops: new ObservableArray(new HopAddition(citra, tenMin, new Grams(1))),
+    hops: new ObservableArray(new HopAddition(citra, new Grams(1), tenMin)),
     maltBill: new ObservableArray(new MaltAddition(paleAle, new Kilos(1))),
     yeast: us05,
 };

@@ -1,19 +1,17 @@
 // @flow
-import { ObservableArray, ReactiveObservable } from '../../observable';
-
+import { ObservableArray } from '../../observable';
 import { HopAddition } from '../hops';
 import { Liters, SpecificGravity, IBU } from '../../units';
 
-export function tinseth(hopAdditions: ObservableArray<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): ReactiveObservable<IBU> {
-    return new ReactiveObservable(null, () => {
-        return tinsethInternal(hopAdditions.toArray(), currentBoilVolume, currentBoilGravity);
-
-    }, hopAdditions, currentBoilVolume, currentBoilGravity);
+export function tinseth(hopAdditions: ObservableArray<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): IBU {
+    return new IBU({
+        fn: () => tinsethInternal(hopAdditions.toArray(), currentBoilVolume, currentBoilGravity),
+        deps: [hopAdditions, currentBoilVolume, currentBoilGravity],
+    });
 }
 
-function tinsethInternal(hopAdditions: Array<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): IBU {
-    const ibus = hopAdditions.reduce((acc, ha) => acc + getRawIBUsForAddition(ha, currentBoilVolume, currentBoilGravity), 0) 
-    return new IBU(ibus);
+function tinsethInternal(hopAdditions: Array<HopAddition>, currentBoilVolume: Liters, currentBoilGravity: SpecificGravity): number {
+    return hopAdditions.reduce((acc, ha) => acc + getRawIBUsForAddition(ha, currentBoilVolume, currentBoilGravity), 0) 
 }
 
 function getRawIBUsForAddition(addition, boilVolume, boilGravity) {

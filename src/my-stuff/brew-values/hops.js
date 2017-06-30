@@ -17,7 +17,7 @@ export class Hop {
     }
 }
 
-export class HopAddition extends Observable<HopAddition> {
+export class HopAddition extends Observable {
 
     _hop: Hop;
     _amount: Grams;
@@ -30,19 +30,34 @@ export class HopAddition extends Observable<HopAddition> {
         this._amount = amount;
         this._timeInBoil = timeInBoil;
 
-        this._amount.onChange( () => this.fireChange(this, undefined, this));
-        this._timeInBoil.onChange( () => this.fireChange(this, undefined, this));
+        this._amount.onChange( () => this.fireChange(this));
+        this._timeInBoil.onChange( () => this.fireChange(this));
     }
 
     getHop() {
         return this._hop;
     }
 
+    setHop(hop: Hop) {
+        this._hop = hop;
+        this.fireChange(this);
+    }
+
     getAmount() {
         return this._amount;
     }
 
+    setAmount(amount: Grams) {
+        this._amount = amount;
+        this.fireChange(this);
+    }
+
     getTimeInBoil() {
         return this._timeInBoil;
+    }
+
+    setTimeInBoil(timeInBoil: Minutes) {
+        this._timeInBoil = timeInBoil;
+        this.fireChange(this);
     }
 }
