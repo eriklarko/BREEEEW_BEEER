@@ -1,12 +1,18 @@
 // @flow
 
+import uuid from "uuid/v4";
+
 type ObservableListener = (Observable) => void;
 
 export class Observable {
     
     listeners: Array<ObservableListener>;
+    id: string;
+    name: ?string;
 
-    constructor() {
+    constructor(name?: ?string) {
+        this.id = uuid();
+        this.name = name;
         this.listeners = [];
     }
 
@@ -15,9 +21,22 @@ export class Observable {
     }
 
     fireChange(obs: Observable) {
+        this._trace('alerting', this.listeners.length, 'listener(s) of change');
         this.listeners.forEach(l => {
             l(obs);
         });
+    }
+
+    setName(name: string): Observable {
+        this.name = name;
+        return this;
+    }
+
+    _trace(...args) {
+        if (global.trace) {
+            const prefix = this.name || this.constructor.name + " " + this.id;
+            console.log(prefix, "--", ...args);
+        }
     }
 }
 

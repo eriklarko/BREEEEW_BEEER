@@ -11,7 +11,6 @@ export function adjustForBoilOff(preBoilVolume: Liters, boilTime: Minutes): Lite
     });
 }
 
-
 function a(preBoilVolume: Liters, boilTime: Minutes): number {
     return preBoilVolume.value() + boilOffPerHour.value() * boilTime.asHours().value();
 }

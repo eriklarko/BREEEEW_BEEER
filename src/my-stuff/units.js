@@ -6,32 +6,41 @@ type ReactiveInfo = {
     fn: () => number,
     deps: Array<Observable>,
 };
-class Unit extends Observable {
+export class Unit extends Observable {
 
+    deps: Array<Observable>;
     _value: number;
     _isAutomatic: boolean;
     _isDirty: boolean;
     _fn: () => number;
 
-    constructor(value: number | ReactiveInfo) {
-        super();
+    constructor(value: number | ReactiveInfo, name?: ?string) {
+        super(name);
         if (typeof value === "number") {
             this._value = value;
             this._isAutomatic = false;
+
+            this.deps = [];
         } else {
             this._isAutomatic = true;
             this._isDirty = true;
 
             this._fn = value.fn;
+
+            this.deps = value.deps;
             for (const dep of value.deps) {
-                dep.onChange(() => this.invalidate());
+                dep.onChange(() => {
+                    this.invalidate();
+                });
             }
         }
     }
 
     value(): number {
         if (this._isAutomatic && this._isDirty) {
-            this._set(this._fn());
+            this._trace('re-calculating');
+            this._value = this._fn();
+            this._trace('calculated value is now', this._value);
             this._isDirty = false;
         }
 
@@ -39,17 +48,24 @@ class Unit extends Observable {
     }
 
     set(value: number) {
-        this._isAutomatic = false;
-        this._set(value);
-    }
+        this._trace('going manual by setting value to', value);
 
-    _set(value: number) {
+        this._isAutomatic = false;
         this._value = value;
         this.fireChange(this);
     }
 
     invalidate() {
+        this._trace('invalidating');
         this._isDirty = true;
+        this.fireChange(this);
+    }
+
+    _trace(...args) {
+        if (global.trace) {
+            const prefix = this.name || this.constructor.name + " " + this.id;
+            console.log(prefix, "--", ...args);
+        }
     }
 }
 
@@ -87,3 +103,5 @@ export class Percent extends Unit {
     }
 }
 
+export class ABV extends Unit {
+}

@@ -4,10 +4,11 @@ import { ObservableArray } from '../observable';
 import { HopAddition, Hop } from "../brew-values/hops";
 import { MaltAddition, Malt } from "../brew-values/malt";
 import { Yeast } from "../brew-values/yeast";
-import { Minutes, Grams, Percent, Liters, SpecificGravity, IBU, Kilos } from '../units';
+import { Unit, Minutes, Grams, Percent, Liters, SpecificGravity, IBU, Kilos, ABV } from '../units';
 import { tinseth } from "../brew-values/bitterness/tinseth";
 import { biabWater } from "../brew-values/biab-water";
 import { adjustForBoilOff } from "../brew-values/water";
+import { daniels } from "../brew-values/alcohol/daniels";
 
 export const citra = new Hop("citra", new Percent(12.5));
 export const paleAle = new Malt('Pale Ale');
@@ -35,35 +36,58 @@ export class Recipe {
     desiredBoilVolume: Liters;
     boilVolume: Liters;
     boilGravity: SpecificGravity;
+    maltWeight: Kilos;
     boilTime: Minutes;
+
+    originalGravity: SpecificGravity;
+    finalGravity: SpecificGravity;
+    alcohol: ABV;
 
     constructor(ingredientsList: Ingredients) {
         this.ingredients = ingredientsList;
+        ingredientsList.hops.setName('hop schedule');
+        ingredientsList.maltBill.setName('malt bill');
 
         this.desiredBoilVolume = new Liters(4);
         this.boilGravity = new SpecificGravity(1);
         this.boilTime = new Minutes(60);
+
+        this.maltWeight = new Kilos({
+            fn: this._maltWeight.bind(this),
+            deps: [this.ingredients.maltBill],
+        });
         
-        this.boilVolume = adjustForBoilOff(biabWater(this.maltWeight(), this.desiredBoilVolume), this.boilTime);
+        const _biabWater = biabWater(this.maltWeight, this.desiredBoilVolume);
+        _biabWater.setName('biabWater');
+        this.boilVolume = adjustForBoilOff(
+            _biabWater,
+            this.boilTime
+        );
         this.bitterness = tinseth(this.ingredients.hops, this.boilVolume, this.boilGravity);
+
+        this.originalGravity = new SpecificGravity(1.050);
+        this.finalGravity = new SpecificGravity(1.010);
+        this.alcohol = daniels(this.originalGravity, this.finalGravity);
+
+        this._setupDebugNames();
     }
 
-    maltWeight(): Kilos {
-        const a =  this.ingredients.maltBill.toArray().reduce(
+    _maltWeight(): number {
+        return this.ingredients.maltBill.toArray().reduce(
             (total, maltAddition) => {
-                console.log('total before', total);
-                console.log(total.value(), maltAddition.getWeight().value());
-                total.set(
-                   total.value() + maltAddition.getWeight().value()
-                );
-                console.log('total after', total);
-                return total;
+                return total + maltAddition.getWeight().value();
             },
-            new Kilos(0),
+            0,
         );
+    }
 
-        console.log('YATTA', a);
-        return a;
+    _setupDebugNames() {
+        for (const propName of Object.keys(this)) {
+            const value = (this: any)[propName];
+            if (value instanceof Unit) {
+                value.setName(propName);
+            }
+        }
     }
 }
 

@@ -1,21 +1,17 @@
 // @flow
 
 import React, { Component } from 'react';
+import { CalcGraph } from './my-stuff/components/CalcGraph';
 
-import { Liters, SpecificGravity } from "./my-stuff/units";
-//import { Recipe } from "./my-stuff/recipe";
-
-class AppState {
-    //    currentRecipe: Recipe;
-}
+import { Recipe, LeSec } from './my-stuff/le-sec-test/recipe';
 
 class App extends Component {
 
-
-
     render() {
-        const appState: AppState = new AppState();
-        return <p>hi</p>
+        const leSec = new Recipe(LeSec);
+        return <div id='apa'>
+            <CalcGraph recipe={ leSec } />
+        </div>
     }
 }
 
