@@ -2,6 +2,7 @@
 
 import uuid from "uuid/v4";
 
+// eslint-disable-next-line
 type ObservableListener = (Observable) => void;
 
 export class Observable {
@@ -27,7 +28,7 @@ export class Observable {
         });
     }
 
-    setName(name: string): Observable {
+    setName(name: string): * {
         this.name = name;
         return this;
     }

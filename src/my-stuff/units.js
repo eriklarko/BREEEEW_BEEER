@@ -25,6 +25,11 @@ export class Unit extends Observable {
             this._isAutomatic = true;
             this._isDirty = true;
 
+            if (!value.fn) {
+                console.log('APPPPA', typeof value, value);
+                throw new Error('Tried to set an automatic unit without a function to calculate it');
+            }
+
             this._fn = value.fn;
 
             this.deps = value.deps;
@@ -70,6 +75,22 @@ export class Unit extends Observable {
 }
 
 export class Liters extends Unit {
+    constructor(v: USGallons | number | ReactiveInfo) {
+        if(v instanceof USGallons) {
+            super(v.value() / 0.264172);
+        } else {
+            super(v);
+        }
+    }
+}
+export class USGallons extends Unit {
+    constructor(v: Liters | number) {
+        if(v instanceof Liters) {
+            super(0.264172 * v.value());
+        } else {
+            super(v);
+        }
+    }
 }
 
 export class Minutes extends Unit {
@@ -81,11 +102,55 @@ export class Hours extends Unit {
 }
 
 export class Kilos extends Unit {
+    constructor(v: Lbs | number | ReactiveInfo) {
+        if(v instanceof Lbs) {
+            super(v.value() / 2.20462262);
+        } else {
+            super(v);
+        }
+    }
 }
 export class Grams extends Unit {
 }
+export class Lbs extends Unit {
+    constructor(v: Kilos | number | ReactiveInfo) {
+        if(v instanceof Kilos) {
+            super(2.20462262 * v.value());
+        } else {
+            super(v);
+        }
+    }
+}
 
 export class SpecificGravity extends Unit {
+}
+export class GravityPoints extends Unit {
+    toSpecificGravity(): SpecificGravity {
+        return new SpecificGravity(this.value() / 1000 + 1);
+    }
+}
+export class ExtractPotential extends Unit {
+    _gp: GravityPoints;
+    _weight: Kilos;
+
+    constructor(gp: GravityPoints, weight?: Kilos) {
+        if (!weight) {
+            weight = new Kilos(1);
+        }
+
+        super(weight === 0 ? 0 : gp.value() / weight.value());
+
+        this._gp = gp;
+        this._weight = weight;
+    }
+
+    getGravityPoints(): GravityPoints {
+        return this._gp;
+    }
+
+    getWeight(): Kilos {
+        return this._weight;
+    }
 }
 
 export class IBU extends Unit {
@@ -104,4 +169,7 @@ export class Percent extends Unit {
 }
 
 export class ABV extends Unit {
+}
+
+export class Celsius extends Unit {
 }

@@ -1,7 +1,7 @@
 // @flow
 
 import { Recipe, LeSec, citra } from "./recipe";
-import { IBU, Minutes, Grams, Liters, Kilos } from "../units";
+import { IBU, Minutes, Grams, Liters, Kilos, ExtractPotential, GravityPoints } from "../units";
 import { HopAddition } from "../brew-values/hops";
 import { Malt, MaltAddition } from "../brew-values/malt";
 
@@ -19,22 +19,22 @@ it('should update the boil volume when the boil time changes', () => {
     
 
     state.boilTime.set(60);
-    const boilVol: number = state.boilVolume.value();
+    const boilVol: number = state.postBoilVolume.value();
     
     state.boilTime.set(75);
 
 
-    expect(state.boilVolume.value()).not.toBe(boilVol);
+    expect(state.postBoilVolume.value()).not.toBe(boilVol);
 });
 
 it('should update the boil volume when a new malt addition is added', () => {
     const state = new Recipe(LeSec);
 
 
-    const boilVol = state.boilVolume.value();
+    const boilVol = state.postBoilVolume.value();
 
-    state.ingredients.maltBill.push(new MaltAddition(new Malt('2-row'), new Kilos(1)));
+    state.ingredients.maltBill.push(new MaltAddition(new Malt('2-row', new ExtractPotential(new GravityPoints(37)), 'grain'), new Kilos(1)));
 
 
-    expect(state.boilVolume.value()).not.toBe(boilVol);
+    expect(state.postBoilVolume.value()).not.toBe(boilVol);
 })

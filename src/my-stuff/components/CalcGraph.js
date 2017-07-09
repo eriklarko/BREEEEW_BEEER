@@ -1,5 +1,3 @@
-// @flow
-
 import React, { Component } from 'react';
 import { Recipe } from '../le-sec-test/recipe';
 import { Unit } from '../units';
@@ -10,17 +8,12 @@ import GraphVis from 'react-graph-vis';
 const options = {
     width: '1500px',
     layout: {
-        hierarchical: true,
+        hierarchical: false,
     },
     edges: {
         color: "#000000"
     }
 };
-const events = {
-    select: function(event) {
-        console.log('Selected node', event);
-    }
-}
 
 type Node = {
     id: string,
@@ -35,11 +28,49 @@ export class CalcGraph extends Component {
     props: {
         recipe: Recipe;
     }
+    state: {
+        hilightedNodeIds: Array<string>;
+        hilightedEdgeIds: Array<string>;
+        network: any;
+        searchString: string;
+    }
+
+    constructor() {
+        super();
+        this.state = {
+            hilightedNodeIds: [],
+            hilightedEdgeIds: [],
+            network: null,
+            searchString: '',
+        };
+    }
 
     render() {
         const graph = this._getGraph(this.props.recipe);
+        const events = {
+            select: this._selectNode.bind(this),
+        }
 
-        return <GraphVis graph={graph} options={options} events={events} />
+        this._hilightNodes();
+
+        return <div>
+            <input type='text' value={this.state.searchString} onChange={(e) => {
+                this.setState({
+                    searchString: e.target.value,
+                });
+                this._searchForNode(e.target.value);
+            }}/>
+            <GraphVis graph={graph}
+                options={options}
+                events={events}
+                getNetwork={
+                    (network) => {
+                        this.setState({
+                            network: network,
+                        });
+                    }
+                }/>
+        </div>
     }
 
     _getGraph(recipe: Recipe): { nodes: Array<Node>, edges: Array<Edge> } {
@@ -92,13 +123,84 @@ export class CalcGraph extends Component {
 
     _toGraphvizNode(unit: Observable): Node {
         let label = unit.name || unit.id;
-        if (unit.value) {
+        if (unit.value && typeof unit.value === 'function') {
             label += ': ' + unit.value().toFixed(2);
         }
 
+        // http://visjs.org/docs/network/nodes.html#
         return {
             id: unit.id,
             label: label,
         };
+    }
+
+    _selectNode(event) {
+        this.setState({
+            hilightedNodeIds: event.nodes,
+            hilightedEdgeIds: event.edges,
+        });
+    }
+
+    _hilightNodes() {
+        if(this.state.network) {
+
+            const hilightedNodeIds = [].concat(this.state.hilightedNodeIds);
+            for (const edgeId of this.state.hilightedEdgeIds) {
+                const edge = this.state.network.body.edges[edgeId];
+                hilightedNodeIds.push( edge.from.id );
+                hilightedNodeIds.push( edge.to.id );
+
+            }
+
+            const hasHilightedNodes = hilightedNodeIds.length > 0;
+            const defaultOptions = {
+                color: hasHilightedNodes
+                    ? 'rgba(210,229,255, 0.2)'
+                    : 'rgba(210,229,255, 1)',
+                
+            };
+
+            for(const node of Object.values(this.state.network.body.nodes)) {
+                const isHilighted = hilightedNodeIds.includes(node.id);
+
+                let options;
+                if (isHilighted) {
+                    options = {
+                        color: 'rgba(210,229,255, 1)',
+                    };
+                } else {
+                    options = defaultOptions;
+                }
+                node.setOptions(options);
+            }
+
+        }
+    }
+
+    _searchForNode(searchString) {
+        if (searchString === '') {
+            this.setState({
+                hilightedNodeIds: [],
+                hilightedEdgeIds: [],
+            });
+
+            return;
+        }
+
+        if(!this.state.network) {
+            throw new Error("Cannot search yet, network not ready");
+        }
+
+        const nodeIds = [];
+        for (const node of Object.values(this.state.network.body.nodes)) {
+            const matchesSearchString = node.options.label.toLowerCase().indexOf(searchString.toLowerCase()) >= 0;
+            if (matchesSearchString) {
+                nodeIds.push(node.id);
+            }
+        }
+        this.setState({
+            hilightedNodeIds: nodeIds,
+            hilightedEdgeIds: [],
+        });
     }
 }
